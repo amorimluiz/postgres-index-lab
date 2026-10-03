@@ -13,4 +13,4 @@
 -- =============================================================================
 
 -- Escreva sua resposta abaixo.
-
+CREATE INDEX IF NOT EXISTS products_created_at_category_active ON products(created_at, category) WHERE active = TRUE
