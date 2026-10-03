@@ -1,0 +1,5 @@
+# Local scratch / solution files used during validation.
+/solutions/
+*.local.sql
+*.local
+.DS_Store

@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: postgres-index-lab
+    restart: unless-stopped
+    shm_size: 512mb
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: indexlab
+      PGDATA: /var/lib/postgresql/data/pgdata
+    command:
+      - postgres
+      - -c
+      - shared_buffers=256MB
+      - -c
+      - work_mem=64MB
+      - -c
+      - maintenance_work_mem=512MB
+      - -c
+      - max_wal_size=8GB
+      - -c
+      - synchronous_commit=off
+      - -c
+      - track_io_timing=on
+      - -c
+      - max_parallel_workers_per_gather=4
+    ports:
+      - "55432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Initialisation scripts run once, in lexicographic order, on the first boot.
+      - ./db/schema/01_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./db/functions/02_lab.sql:/docker-entrypoint-initdb.d/02_lab.sql:ro
+      - ./db/seed/03_seed.sql:/docker-entrypoint-initdb.d/03_seed.sql:ro
+      - ./db/seed/04_analyze.sql:/docker-entrypoint-initdb.d/04_analyze.sql:ro
+      - ./db/grants/05_grants.sql:/docker-entrypoint-initdb.d/05_grants.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d indexlab"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+      start_period: 30s
+
+volumes:
+  pgdata:
