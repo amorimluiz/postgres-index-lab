@@ -13,4 +13,5 @@
 -- =============================================================================
 
 -- Escreva sua resposta abaixo.
-
+DROP INDEX IF EXISTS payments_order_id_idx;
+CREATE INDEX payments_order_id_idx ON payments(order_id) INCLUDE (amount_cents, status);
