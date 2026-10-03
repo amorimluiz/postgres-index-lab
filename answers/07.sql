@@ -13,4 +13,5 @@
 -- =============================================================================
 
 -- Escreva sua resposta abaixo.
-
+DROP INDEX IF EXISTS orders_status_pending_created_at_desc_id_desc_idx;
+CREATE INDEX orders_status_pending_created_at_desc_id_desc_idx ON orders(status, created_at DESC, id DESC) WHERE status = 'pending';
