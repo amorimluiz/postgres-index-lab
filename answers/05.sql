@@ -13,4 +13,5 @@
 -- =============================================================================
 
 -- Escreva sua resposta abaixo.
-
+DROP INDEX IF EXISTS events_id_desc_created_at_desc;
+CREATE INDEX events_id_desc_created_at_desc ON events (created_at DESC, id DESC) INCLUDE (customer_id, event_type);
