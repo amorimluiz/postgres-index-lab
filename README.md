@@ -115,6 +115,20 @@ você pode rodar `make replay` a qualquer momento, mesmo tendo resolvido apenas
 os primeiros desafios. Com isso, o estado do banco é sempre reproduzível a
 partir do SQL versionado.
 
+### Voltar para o último desafio que passou
+
+Se você passou do desafio 03 e bagunçou tudo no 04, não tente consertar à mão:
+volte para o estado bom do 03.
+
+```bash
+make restore CHALLENGE=03
+```
+
+Isso descarta o banco atual, recria o original e reaplica apenas
+`answers/01.sql` ... `answers/03.sql`. Depois é só corrigir o `answers/04.sql`
+e seguir. Funciona mesmo que o `answers/04.sql` tenha ficado quebrado, porque
+ele não é aplicado.
+
 ## Executando o avaliador
 
 ```bash

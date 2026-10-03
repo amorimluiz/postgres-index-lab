@@ -13,6 +13,7 @@
 #   make solve CHALLENGE=04 apply the answer, then run the evaluator
 #   make replay             apply every answers/NN.sql in order (reverse reset)
 #   make rebuild            reset the volume, wait, then replay all answers
+#   make restore CHALLENGE=02  reset then replay answers up to 02 (last good state)
 #   make bench              run the read-vs-write benchmark
 #   make reset              destroy the volume and recreate the original database
 # =============================================================================
@@ -24,10 +25,10 @@ SCHEMA_DB ?= indexlab
 PSQL_POSTGRES := $(COMPOSE) exec -T $(SERVICE) psql -U postgres -d $(SCHEMA_DB)
 PSQL_STUDENT  := $(COMPOSE) exec -T $(SERVICE) psql -v ON_ERROR_STOP=1 -U student -d $(SCHEMA_DB)
 
-.PHONY: help up wait down reset psql student test apply solve replay rebuild bench list
+.PHONY: help up wait down reset psql student test apply solve replay rebuild restore bench list
 
 help:
-	@echo "Targets: up wait down reset psql student test apply solve replay rebuild bench list"
+	@echo "Targets: up wait down reset psql student test apply solve replay rebuild restore bench list"
 
 up:
 	$(COMPOSE) up -d
@@ -85,6 +86,21 @@ replay:
 rebuild: reset
 	@$(MAKE) wait
 	@$(MAKE) replay
+
+# Reset and replay answers only up to CHALLENGE (inclusive). Use it to jump back
+# to the last known-good state when a later challenge went wrong.
+# Example: make restore CHALLENGE=02
+restore:
+	@test -n "$(CHALLENGE)" || (echo "Usage: make restore CHALLENGE=02" >&2; exit 2)
+	@$(MAKE) reset
+	@$(MAKE) wait
+	@for f in $$(ls -1 answers/[0-9][0-9].sql 2>/dev/null | sort); do \
+		n=$$(basename "$$f" .sql); \
+		if [ "$$n" \> "$(CHALLENGE)" ]; then break; fi; \
+		echo "--> applying $$f"; \
+		$(COMPOSE) exec -T $(SERVICE) psql -v ON_ERROR_STOP=1 -U student -d $(SCHEMA_DB) < "$$f" || exit 1; \
+	done
+	@echo "Restored the database through challenge $(CHALLENGE)."
 
 bench:
 	$(PSQL_POSTGRES) < benchmarks/write_tradeoff.sql
