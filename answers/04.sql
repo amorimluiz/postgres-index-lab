@@ -13,4 +13,7 @@
 -- =============================================================================
 
 -- Escreva sua resposta abaixo.
-
+DROP INDEX IF EXISTS events_activity_idx;
+CREATE INDEX events_activity_idx
+    ON events (customer_id, event_type, created_at DESC, id DESC);
+CREATE INDEX IF NOT EXISTS events_customer_id_event_type_created_at ON events(customer_id, event_type, created_at)

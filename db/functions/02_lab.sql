@@ -99,6 +99,16 @@ LANGUAGE sql AS $$
     SELECT p_type = ANY (lab.node_types(p_plan));
 $$;
 
+-- True if the plan performs any kind of sort, including `Incremental Sort`.
+CREATE OR REPLACE FUNCTION lab.has_sort(p_plan jsonb)
+RETURNS boolean
+LANGUAGE sql AS $$
+    SELECT EXISTS (
+        SELECT 1 FROM unnest(lab.node_types(p_plan)) AS t
+        WHERE t LIKE '%Sort%'
+    );
+$$;
+
 -- Tables touched by a sequential scan.
 CREATE OR REPLACE FUNCTION lab.seqscan_relations(p_plan jsonb)
 RETURNS text[]
@@ -222,7 +232,7 @@ BEGIN
 
     IF p_require_no_sort THEN
         PERFORM lab.check(p_challenge, p_label || ' sort',
-            NOT lab.has_node(v_plan, 'Sort'),
+            NOT lab.has_sort(v_plan),
             'no Sort node',
             lab.plan_summary(v_plan));
     END IF;

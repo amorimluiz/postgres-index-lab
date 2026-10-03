@@ -13,4 +13,7 @@
 -- =============================================================================
 
 -- Escreva sua resposta abaixo.
-CREATE INDEX IF NOT EXISTS products_created_at_category_active ON products(created_at, category) WHERE active = TRUE
+DROP INDEX IF EXISTS products_browse_idx;
+CREATE INDEX products_browse_idx
+    ON products (category, created_at DESC, id DESC)
+    WHERE active = TRUE;
