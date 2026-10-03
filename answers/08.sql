@@ -13,4 +13,5 @@
 -- =============================================================================
 
 -- Escreva sua resposta abaixo.
-
+DROP INDEX IF EXISTS customers_country_status_created_at_desc_id_desc_idx;
+CREATE INDEX customers_country_status_created_at_desc_id_desc ON customers(country, status, created_at DESC, id DESC);
